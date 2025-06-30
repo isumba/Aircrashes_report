@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Air Crashes Dataset – Exploratory and Descriptive Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="Data_Analysis (1)_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Data_Analysis (1)_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Data_Analysis (1)_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Data_Analysis (1)_files/libs/quarto-html/popper.min.js"></script>
+<script src="Data_Analysis (1)_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Data_Analysis (1)_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Data_Analysis (1)_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Data_Analysis (1)_files/libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Data_Analysis (1)_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Data_Analysis (1)_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Data_Analysis (1)_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Air Crashes Dataset – Exploratory and Descriptive Analysis</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In this notebook, we carry out an in-depth exploratory and descriptive analysis of the Air Crashes Dataset, a historical record of aircraft accidents involving various aircraft models, operators, and global locations.</p>
+<p>This phase of analysis is essential for uncovering trends, identifying critical safety factors, and understanding the dataset’s structure before proceeding to modeling or further statistical inference. We examine the distribution of crashes over time, affected regions, aircraft manufacturers, and casualty data. Particular focus is placed on the relationship between crash frequency and time, geographical hotspots, and aircraft types, helping to build a strong foundation for downstream risk assessment and safety policy development.</p>
+<p>We begin our analysis by importing the core Python libraries required for <strong>data handling</strong>, <strong>numerical computation</strong>, <strong>visualization</strong>, and <strong>directory management</strong>:</p>
+<ul>
+<li><p><code>pandas</code>: Enables efficient manipulation, filtering, and aggregation of structured tabular data, forming the backbone of our analysis pipeline.</p></li>
+<li><p><code>numpy</code>: Provides support for fast numerical operations, array-based computation, and statistical routines.</p></li>
+<li><p><code>os</code>: Facilitates interaction with the file system, allowing us to construct flexible and portable directory paths for data and output management.</p></li>
+<li><p><code>plotly.express</code>: A high-level graphing library that enables the creation of interactive, publication-quality visualizations, which we use extensively to uncover patterns and present insights throughout the notebook.</p></li>
+</ul>
+<div id="2fb803e7-f73b-4d32-b658-47e514e8fe70" class="cell" data-execution_count="99">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import Libararies</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="define-and-create-directory-paths" class="level2">
+<h2 class="anchored" data-anchor-id="define-and-create-directory-paths">Define and Create Directory Paths</h2>
+<p>To ensure reproducibility and organized storage, we programmatically create directories if they don’t already exist for:</p>
+<ul>
+<li><strong>raw data</strong></li>
+<li><strong>processed data</strong></li>
+<li><strong>results</strong></li>
+<li><strong>documentation</strong></li>
+</ul>
+<p>These directories will store intermediate and final outputs for reproducibility</p>
+<div id="69339ebf-d2c8-4ae4-87b2-08719dbbee52" class="cell" data-execution_count="100">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get working directory</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>current_dir<span class="op">=</span> os.getcwd()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Go one directory up to the root directory</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>project_root_dir<span class="op">=</span> os.path.dirname(current_dir)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>project_root_dir</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define paths to docs folder</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>data_dir<span class="op">=</span> os.path.join(project_root_dir,<span class="st">'Data'</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>raw_dir<span class="op">=</span> os.path.join(data_dir,<span class="st">'Raw'</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>processed_dir<span class="op">=</span>os.path.join(data_dir,<span class="st">'Processed'</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>results_dir<span class="op">=</span>os.path.join(project_root_dir,<span class="st">'Results'</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>docs_dir<span class="op">=</span>os.path.join(project_root_dir,<span class="st">'Docs'</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>notebook_dir<span class="op">=</span> os.path.join(project_root_dir,<span class="st">'Notebooks'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="loading-the-cleaned-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="loading-the-cleaned-dataset">Loading the Cleaned Dataset</h2>
+<p>We load the cleaned version of the Air Crashes Dataset from the processed data directory into a Pandas DataFrame. The head(10) function shows the first ten records, giving a glimpse into columns such as Year, Country/Region, Aircraft Manufacturer, Operator, and Fatalities.</p>
+<div id="d757dbeb-63be-40f0-95c2-6305dcf19e43" class="cell" data-execution_count="101">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="vs">r"C:</span><span class="er">\</span><span class="vs">Users</span><span class="er">\</span><span class="vs">user</span><span class="dv">\D</span><span class="vs">ocuments</span><span class="er">\</span><span class="vs">Tekher</span><span class="er">\</span><span class="vs">NEW CRASHES</span><span class="dv">\A</span><span class="vs">ircrashes_report</span><span class="dv">\D</span><span class="vs">ata</span><span class="er">\</span><span class="vs">processed</span><span class="dv">\A</span><span class="vs">ircrash_file cleaned</span><span class="dv">.</span><span class="vs">csv"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                         , header<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="101">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Year</th>
+<th data-quarto-table-cell-role="th">Quarter</th>
+<th data-quarto-table-cell-role="th">Month</th>
+<th data-quarto-table-cell-role="th">Day</th>
+<th data-quarto-table-cell-role="th">Country/Region</th>
+<th data-quarto-table-cell-role="th">Aircraft Manufacturer</th>
+<th data-quarto-table-cell-role="th">Aircraft</th>
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">Operator</th>
+<th data-quarto-table-cell-role="th">Sum of Ground</th>
+<th data-quarto-table-cell-role="th">Sum of Fatalities (air)</th>
+<th data-quarto-table-cell-role="th">Sum of Aboard</th>
+<th data-quarto-table-cell-role="th">Month_num</th>
+<th data-quarto-table-cell-role="th">Date</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1908</td>
+<td>Qtr 3</td>
+<td>September</td>
+<td>17</td>
+<td>United States</td>
+<td>Wright</td>
+<td>Wright Flyer III</td>
+<td>virginia</td>
+<td>Army U.S. - Military</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>9</td>
+<td>1908-09-17</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1909</td>
+<td>Qtr 3</td>
+<td>September</td>
+<td>7</td>
+<td>France</td>
+<td>Wright</td>
+<td>Wright ByplaneSC1</td>
+<td>france</td>
+<td>Unknown</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>9</td>
+<td>1909-09-07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1912</td>
+<td>Qtr 3</td>
+<td>July</td>
+<td>12</td>
+<td>Unknown</td>
+<td>Unknown</td>
+<td>Dirigible</td>
+<td>atlantic</td>
+<td>Navy U.S. - JerseyMilitary</td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+<td>7</td>
+<td>1912-07-12</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1913</td>
+<td>Qtr 3</td>
+<td>August</td>
+<td>6</td>
+<td>United Kingdom</td>
+<td>Curtiss</td>
+<td>Curtiss seaplane</td>
+<td>victoria british</td>
+<td>Canada Columbia Private</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>8</td>
+<td>1913-08-06</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1913</td>
+<td>Qtr 3</td>
+<td>September</td>
+<td>9</td>
+<td>Unknown</td>
+<td>Zeppelin</td>
+<td>Zeppelin L 1 (airship)</td>
+<td>over the north seamilitary - german navy</td>
+<td>Unknown</td>
+<td>0</td>
+<td>14</td>
+<td>20</td>
+<td>9</td>
+<td>1913-09-09</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>1913</td>
+<td>Qtr 4</td>
+<td>October</td>
+<td>17</td>
+<td>Unknown</td>
+<td>Zeppelin</td>
+<td>Zeppelin L 2 (airship)</td>
+<td>near johannisthal germany</td>
+<td>Navy German - Military</td>
+<td>0</td>
+<td>28</td>
+<td>28</td>
+<td>10</td>
+<td>1913-10-17</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>1915</td>
+<td>Qtr 1</td>
+<td>March</td>
+<td>5</td>
+<td>Unknown</td>
+<td>Zeppelin</td>
+<td>Zeppelin L 8 (airship)</td>
+<td>tienen belgium</td>
+<td>Navy German - Military</td>
+<td>0</td>
+<td>17</td>
+<td>41</td>
+<td>3</td>
+<td>1915-03-05</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">7</td>
+<td>1915</td>
+<td>Qtr 3</td>
+<td>September</td>
+<td>3</td>
+<td>Unknown</td>
+<td>Zeppelin</td>
+<td>Zeppelin L 10 (airship)</td>
+<td>off cuxhaven germany</td>
+<td>Navy German - Military</td>
+<td>0</td>
+<td>19</td>
+<td>19</td>
+<td>9</td>
+<td>1915-09-03</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>1916</td>
+<td>Qtr 3</td>
+<td>July</td>
+<td>28</td>
+<td>Bulgaria</td>
+<td>Schütte-Lanz</td>
+<td>Schutte Lanz S</td>
+<td>near jambol bulgeria</td>
+<td>Army German - Military</td>
+<td>0</td>
+<td>20</td>
+<td>20</td>
+<td>7</td>
+<td>1916-07-28</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>1916</td>
+<td>Qtr 3</td>
+<td>September</td>
+<td>24</td>
+<td>Unknown</td>
+<td>Zeppelin</td>
+<td>Zeppelin L 32 (airship)</td>
+<td>billericay england</td>
+<td>Navy German - Military</td>
+<td>0</td>
+<td>22</td>
+<td>22</td>
+<td>9</td>
+<td>1916-09-24</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="dataset-dimensions-and-data-types" class="level2">
+<h2 class="anchored" data-anchor-id="dataset-dimensions-and-data-types">Dataset Dimensions and Data Types</h2>
+<p>Here, we examine the structure of the dataset:</p>
+<p>There are 5,030 entries and 14 variables. The dataset includes both numerical (e.g., Year, Fatalities) and categorical variables (e.g., Country/Region, Aircraft Manufacturer, Operator).</p>
+<p>Understanding data types and null entries is essential before proceeding with analysis.</p>
+<div id="5664a5fc-94bc-42fc-ba4a-ae8ab4d2f7e1" class="cell" data-execution_count="102">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df.shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="102">
+<pre><code>(5030, 14)</code></pre>
+</div>
+</div>
+<div id="6ef60f7d-e2f1-49fe-80f3-a0af1ce02c66" class="cell" data-execution_count="103">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.info()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 5030 entries, 0 to 5029
+Data columns (total 14 columns):
+ #   Column                   Non-Null Count  Dtype 
+---  ------                   --------------  ----- 
+ 0   Year                     5030 non-null   int64 
+ 1   Quarter                  5030 non-null   object
+ 2   Month                    5030 non-null   object
+ 3   Day                      5030 non-null   int64 
+ 4   Country/Region           5030 non-null   object
+ 5   Aircraft Manufacturer    5030 non-null   object
+ 6   Aircraft                 5020 non-null   object
+ 7   Location                 5030 non-null   object
+ 8   Operator                 5030 non-null   object
+ 9   Sum of Ground            5030 non-null   int64 
+ 10  Sum of Fatalities (air)  5030 non-null   int64 
+ 11  Sum of Aboard            5030 non-null   int64 
+ 12  Month_num                5030 non-null   int64 
+ 13  Date                     5030 non-null   object
+dtypes: int64(6), object(8)
+memory usage: 550.3+ KB</code></pre>
+</div>
+</div>
+</section>
+<section id="summary-statistics-numerical-variables" class="level2">
+<h2 class="anchored" data-anchor-id="summary-statistics-numerical-variables">Summary Statistics: Numerical Variables</h2>
+<div id="84989f17-bdee-4dcb-a839-aad09195001c" class="cell" data-execution_count="104">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df.describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="104">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Year</th>
+<th data-quarto-table-cell-role="th">Day</th>
+<th data-quarto-table-cell-role="th">Sum of Ground</th>
+<th data-quarto-table-cell-role="th">Sum of Fatalities (air)</th>
+<th data-quarto-table-cell-role="th">Sum of Aboard</th>
+<th data-quarto-table-cell-role="th">Month_num</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>5030.000000</td>
+<td>5030.000000</td>
+<td>5030.000000</td>
+<td>5030.000000</td>
+<td>5030.000000</td>
+<td>5030.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">mean</td>
+<td>1970.938370</td>
+<td>15.783499</td>
+<td>1.706163</td>
+<td>22.237972</td>
+<td>31.013519</td>
+<td>6.694433</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">std</td>
+<td>24.770415</td>
+<td>8.795157</td>
+<td>55.132476</td>
+<td>34.960979</td>
+<td>45.399504</td>
+<td>3.530774</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">min</td>
+<td>1908.000000</td>
+<td>1.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">25%</td>
+<td>1951.000000</td>
+<td>8.000000</td>
+<td>0.000000</td>
+<td>4.000000</td>
+<td>7.000000</td>
+<td>4.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">50%</td>
+<td>1970.000000</td>
+<td>16.000000</td>
+<td>0.000000</td>
+<td>11.000000</td>
+<td>16.000000</td>
+<td>7.000000</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">75%</td>
+<td>1992.000000</td>
+<td>23.000000</td>
+<td>0.000000</td>
+<td>25.000000</td>
+<td>34.000000</td>
+<td>10.000000</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">max</td>
+<td>2023.000000</td>
+<td>31.000000</td>
+<td>2750.000000</td>
+<td>583.000000</td>
+<td>644.000000</td>
+<td>12.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="this-summary-provides-a-snapshot-of-key-distribution-characteristics.-we-observe-that" class="level2">
+<h2 class="anchored" data-anchor-id="this-summary-provides-a-snapshot-of-key-distribution-characteristics.-we-observe-that">This summary provides a snapshot of key distribution characteristics. We observe that:</h2>
+<p>Year ranges from 1908 to 2023, with a mean around 1970.9. The data spans over a century, reflecting a wide historical coverage of air crash incidents globally. The median year is 1970, showing a relatively balanced distribution across time with slightly more recent records.</p>
+<p>Sum of Fatalities (air) shows a wide range, with the maximum reaching 583. The median is 11, and the mean is around 22.2. This indicates a highly skewed distribution where most crashes involve a small number of fatalities, but a few major accidents result in high fatality counts.</p>
+<p>Sum of Ground fatalities is mostly 0, with a very high standard deviation due to rare but extremely deadly incidents (max = 2750). The 25th, 50th, and 75th percentiles are all 0, showing that in most cases, no fatalities occurred on the ground.</p>
+<p>Sum of Aboard ranges from 0 to 644, with a mean of 31 and median of 16. This implies that most aircraft involved were small to mid-sized, though large passenger aircraft are also present in the dataset.</p>
+<p>Day of the month ranges from 1 to 31 with no significant skew, indicating a fairly uniform distribution of accidents throughout the month.</p>
+<p>Month_num ranges from 1 (January) to 12 (December), with a median of 7, suggesting crashes are relatively balanced across months, though further analysis could reveal seasonal trends.</p>
+</section>
+<section id="summary-statistics-categorical-variables" class="level2">
+<h2 class="anchored" data-anchor-id="summary-statistics-categorical-variables">Summary Statistics: Categorical Variables</h2>
+<div id="ff93ee90-7f3c-4093-bf6c-9d35ae9af69b" class="cell" data-execution_count="105">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df.describe(include<span class="op">=</span><span class="st">'object'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="105">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Quarter</th>
+<th data-quarto-table-cell-role="th">Month</th>
+<th data-quarto-table-cell-role="th">Country/Region</th>
+<th data-quarto-table-cell-role="th">Aircraft Manufacturer</th>
+<th data-quarto-table-cell-role="th">Aircraft</th>
+<th data-quarto-table-cell-role="th">Location</th>
+<th data-quarto-table-cell-role="th">Operator</th>
+<th data-quarto-table-cell-role="th">Date</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">count</td>
+<td>5030</td>
+<td>5030</td>
+<td>5030</td>
+<td>5030</td>
+<td>5020</td>
+<td>5030</td>
+<td>5030</td>
+<td>5030</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">unique</td>
+<td>4</td>
+<td>12</td>
+<td>60</td>
+<td>285</td>
+<td>3510</td>
+<td>4165</td>
+<td>2625</td>
+<td>4598</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">top</td>
+<td>Qtr 4</td>
+<td>December</td>
+<td>Unknown</td>
+<td>Douglas</td>
+<td>Boeing B 737</td>
+<td>moscow russia</td>
+<td>Unknown</td>
+<td>2001-09-11</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">freq</td>
+<td>1368</td>
+<td>497</td>
+<td>3547</td>
+<td>995</td>
+<td>73</td>
+<td>16</td>
+<td>234</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<div id="9ca2d80c-ace9-434b-9af4-97a9691f95fe" class="cell" data-execution_count="106">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Year'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="106">
+<pre><code>Year
+1946    0.017495
+1989    0.016501
+1947    0.016302
+1962    0.015706
+1948    0.015507
+          ...   
+2023    0.000398
+1915    0.000398
+1909    0.000199
+1912    0.000199
+1908    0.000199
+Name: proportion, Length: 113, dtype: float64</code></pre>
+</div>
+</div>
+<div id="9beb3929-197c-4c89-8678-03b72e7a0b5b" class="cell" data-execution_count="107">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Quarter'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="107">
+<pre><code>Quarter
+Qtr 4    0.271968
+Qtr 3    0.265010
+Qtr 1    0.249105
+Qtr 2    0.213917
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<div id="0fafda07-b1f7-4822-adb6-d5c053656714" class="cell" data-execution_count="108">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Month'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="108">
+<pre><code>Month
+December     0.098807
+January      0.092247
+September    0.090060
+August       0.089861
+November     0.088072
+July         0.085089
+October      0.085089
+March        0.084891
+June         0.072962
+February     0.071968
+May          0.071571
+April        0.069384
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<div id="d5ac25f5-e4c1-4249-a09c-b7b3ffea94fb" class="cell" data-execution_count="109">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Day'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="109">
+<pre><code>Day
+8     0.036779
+15    0.036183
+24    0.035388
+27    0.035189
+10    0.034990
+14    0.034592
+9     0.034394
+2     0.034394
+11    0.034195
+3     0.034195
+21    0.034195
+22    0.033400
+6     0.033002
+17    0.032803
+12    0.032803
+18    0.032406
+4     0.032207
+20    0.031610
+29    0.031213
+26    0.031213
+16    0.031014
+19    0.031014
+23    0.030815
+28    0.030417
+25    0.030417
+13    0.030417
+5     0.029821
+30    0.029821
+7     0.029026
+1     0.029026
+31    0.023062
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<div id="114c51d6-bc23-4361-b493-c287d8baf051" class="cell" data-execution_count="110">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Country/Region'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="110">
+<pre><code>Country/Region
+Unknown                     0.705169
+United States               0.161630
+Brazil                      0.032803
+India                       0.023658
+China                       0.018091
+Canada                      0.014911
+Spain                       0.012525
+United Kingdom              0.008946
+Serbia                      0.002386
+Portugal                    0.001590
+Italy                       0.001392
+France                      0.001392
+Japan                       0.001392
+Indonesia                   0.001193
+Australia                   0.000994
+Philippines                 0.000795
+Mexico                      0.000795
+Malaysia                    0.000398
+Colombia                    0.000398
+Argentina                   0.000398
+Cameroon                    0.000398
+Zimbabwe                    0.000398
+Sweden                      0.000398
+Netherlands                 0.000398
+Bulgaria                    0.000398
+Germany                     0.000398
+Croatia                     0.000199
+Suriname                    0.000199
+Saudi Arabia                0.000199
+Mauritania                  0.000199
+Djibouti                    0.000199
+Ecuador                     0.000199
+Antigua and Barbuda         0.000199
+Sierra Leone                0.000199
+Dominican Republic          0.000199
+Nepal                       0.000199
+Morocco                     0.000199
+Cook Islands                0.000199
+Cuba                        0.000199
+Myanmar                     0.000199
+Kyrgyzstan                  0.000199
+Haiti                       0.000199
+Jamaica                     0.000199
+Hungary                     0.000199
+Northern Mariana Islands    0.000199
+Romania                     0.000199
+Honduras                    0.000199
+Kiribati                    0.000199
+Cocos (Keeling) Islands     0.000199
+Costa Rica                  0.000199
+Marshall Islands            0.000199
+Bangladesh                  0.000199
+Cambodia                    0.000199
+Switzerland                 0.000199
+Finland                     0.000199
+Madagascar                  0.000199
+Nigeria                     0.000199
+Peru                        0.000199
+French Polynesia            0.000199
+Namibia                     0.000199
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<div id="f204df93-4d5f-4bb1-b4b1-60c4eda45ad0" class="cell" data-execution_count="111">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Aircraft Manufacturer'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="111">
+<pre><code>Aircraft Manufacturer
+Douglas                0.197813
+Boeing                 0.080915
+Lockheed               0.065408
+De Havilland           0.058648
+Antonov                0.057256
+                         ...   
+Volpar                 0.000199
+Britten-Norman         0.000199
+Cant                   0.000199
+De Havilland Canada    0.000199
+Socata                 0.000199
+Name: proportion, Length: 285, dtype: float64</code></pre>
+</div>
+</div>
+<div id="9849529b-4e0b-46e4-9be3-bee50c420fcb" class="cell" data-execution_count="112">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Aircraft'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="112">
+<pre><code>Aircraft
+Boeing B 737                       0.014542
+Boeing B 727                       0.011355
+Boeing B 707                       0.010159
+McDonnell Douglas DC 9             0.008367
+Douglas C 47A                      0.007968
+                                     ...   
+Lockheed 18 LodestarN300E          0.000199
+Douglas DC 7                       0.000199
+Douglas C 124C / Fairchild C       0.000199
+Junkers JU 52/3mHC                 0.000199
+Embraer EMB 110P1 BandeirantePT    0.000199
+Name: proportion, Length: 3510, dtype: float64</code></pre>
+</div>
+</div>
+<div id="45857efa-8525-4c38-ae7c-db96eff72ef3" class="cell" data-execution_count="113">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Location'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="113">
+<pre><code>Location
+moscow russia                        0.003181
+manila philippines                   0.002982
+new york new                         0.002982
+cairo egypt                          0.002584
+sao paulo brazil                     0.002584
+                                       ...   
+nantucket massachusetts              0.000199
+near chita russia                    0.000199
+off guammilitary - u.s. air force    0.000199
+sasnashen russia                     0.000199
+brazil                               0.000199
+Name: proportion, Length: 4165, dtype: float64</code></pre>
+</div>
+</div>
+<div id="60c85ca1-efa5-4bae-ae73-b2cf1bc739f5" class="cell" data-execution_count="114">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Operator'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="114">
+<pre><code>Operator
+Unknown                                    0.046521
+Aeroflot                                   0.037376
+Force Air U.S. - Military                  0.018290
+France Air                                 0.011332
+Lufthansa Deutsche                         0.011332
+                                             ...   
+Airlines SamoaPolynesian                   0.000199
+Air Laos                                   0.000199
+New York          Falls Mohawk Airlines    0.000199
+Canada Austin Airways                      0.000199
+Aerotaxi Manaus                            0.000199
+Name: proportion, Length: 2625, dtype: float64</code></pre>
+</div>
+</div>
+<div id="c7a17532-865e-42b7-804d-6023ac9b9016" class="cell" data-execution_count="115">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Sum of Ground'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="115">
+<pre><code>Sum of Ground
+0       0.949901
+1       0.012326
+2       0.007157
+3       0.004374
+4       0.003181
+5       0.002386
+7       0.001988
+8       0.001789
+6       0.001193
+10      0.001193
+14      0.000994
+11      0.000795
+13      0.000795
+12      0.000795
+19      0.000795
+44      0.000795
+22      0.000795
+24      0.000596
+20      0.000596
+35      0.000398
+25      0.000398
+125     0.000398
+15      0.000398
+30      0.000398
+37      0.000398
+2750    0.000398
+32      0.000199
+45      0.000199
+39      0.000199
+18      0.000199
+225     0.000199
+49      0.000199
+9       0.000199
+78      0.000199
+40      0.000199
+50      0.000199
+31      0.000199
+113     0.000199
+71      0.000199
+33      0.000199
+23      0.000199
+87      0.000199
+17      0.000199
+29      0.000199
+16      0.000199
+36      0.000199
+58      0.000199
+63      0.000199
+53      0.000199
+85      0.000199
+Name: proportion, dtype: float64</code></pre>
+</div>
+</div>
+<div id="a68f19fc-759e-4bc6-99a4-f18f5ecda0fe" class="cell" data-execution_count="116">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Sum of Fatalities (air)'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="116">
+<pre><code>Sum of Fatalities (air)
+1      0.076342
+2      0.075149
+3      0.072565
+4      0.048708
+5      0.046918
+         ...   
+259    0.000199
+144    0.000199
+171    0.000199
+223    0.000199
+224    0.000199
+Name: proportion, Length: 199, dtype: float64</code></pre>
+</div>
+</div>
+<div id="ac248d43-483b-4fd6-822c-02c296018add" class="cell" data-execution_count="117">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Sum of Aboard'</span>].value_counts(normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="117">
+<pre><code>Sum of Aboard
+3      0.055666
+2      0.048907
+4      0.040557
+5      0.037972
+10     0.035785
+         ...   
+356    0.000199
+258    0.000199
+259    0.000199
+290    0.000199
+190    0.000199
+Name: proportion, Length: 244, dtype: float64</code></pre>
+</div>
+</div>
+<p>Year</p>
+<p>Accidents span over a century, with noticeable peaks in the mid-1900s. The year 1946 holds the highest share of crashes (~1.75%), followed closely by 1989 and 1947. Earlier years (like 1908–1915) represent a very small fraction, reflecting limited aviation activity at the time.</p>
+<p>Quarter</p>
+<p>Crashes are slightly more common in the fourth quarter (27.2%) and third quarter (26.5%), suggesting seasonal patterns — possibly linked to weather conditions or travel demand. The second quarter has the fewest incidents (21.4%).</p>
+<p>Month</p>
+<p>December has the highest occurrence of air crashes (9.9%), followed by January and September. April and May see the least, each under 7.2%. This distribution may align with operational pressures or climatic changes across months.</p>
+<p>Day of the Month</p>
+<p>Crashes are relatively well spread across the month. The 8th, 15th, and 24th show slightly higher frequencies (~3.5% each), while the 31st records the fewest, likely due to fewer months including that date.</p>
+<p>Country/Region</p>
+<p>A significant majority of incidents (~70.5%) have unknown locations. Among known countries, the United States dominates (16.2%), followed by Brazil (3.3%) and India (2.4%). Other nations appear in much smaller proportions, reflecting either data incompleteness or global aviation distribution.</p>
+<p>Aircraft Manufacturer</p>
+<p>Douglas aircraft are most commonly involved (19.8%), followed by Boeing (8.1%), Lockheed (6.5%), and De Havilland (5.9%). Over 280 manufacturers appear, but most contribute marginally to the total crash count.</p>
+<p>Aircraft</p>
+<p>The Boeing 737 is the most frequently appearing aircraft model (~1.45%), with the Boeing 727 and 707 also in the top ranks. Many aircraft types appear only once or twice in the dataset, showcasing a long-tail distribution of aircraft diversity.</p>
+<p>Location</p>
+<p>Most locations are unique, but a few hotspots such as Moscow, Manila, and New York show slightly higher recurrence. These urban or high-traffic areas may reflect denser airspace or data coverage patterns.</p>
+<p>Operator</p>
+<p>The majority of crashes involve a wide variety of operators. “Unknown” accounts for 4.6%, while Aeroflot (3.7%) and the U.S. Air Force (1.8%) are the most frequent named operators. Over 2,600 unique operator names highlight the diversity in commercial, military, and private aviation.</p>
+<p>Sum of Ground Fatalities</p>
+<p>Nearly 95% of crash records show zero ground fatalities. However, rare but extreme events like one with 2,750 ground deaths skew the distribution. Only a handful of crashes caused fatalities on the ground.</p>
+<p>Sum of Air Fatalities</p>
+<p>Fatalities in crashes are heavily concentrated in small numbers — 1 to 4 deaths cover a significant share. Very high fatality counts are rare, though they highlight catastrophic events with over 200 deaths in some cases.</p>
+<p>Sum of Aboard</p>
+<p>Most crashes involved aircraft with fewer than 10 people aboard. Still, a long tail exists, with some aircraft carrying over 300 passengers. The most common aboard counts are between 2 and 10, suggesting many crashes involve small to mid-size aircraft.</p>
+<div id="dd79d247-e5c2-4920-b7e6-a0b1dd276ae2" class="cell" data-execution_count="118">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the directory where results will be saved</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>result_dir <span class="op">=</span> <span class="vs">r"C:</span><span class="er">\</span><span class="vs">Users</span><span class="er">\</span><span class="vs">user</span><span class="dv">\D</span><span class="vs">ocuments</span><span class="er">\</span><span class="vs">Tekher</span><span class="er">\</span><span class="vs">NEW CRASHES</span><span class="dv">\A</span><span class="vs">ircrashes_report</span><span class="ch">\r</span><span class="vs">esult"</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure the folder exists, if not create it</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>os.makedirs(result_dir, exist_ok<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="2712e23c-1f4a-472f-85db-f3d95ca5eaa5" class="cell" data-execution_count="119">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> plotly.subplots <span class="im">import</span> make_subplots</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.graph_objects <span class="im">as</span> go</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>aircrafts <span class="op">=</span> df[<span class="st">'Aircraft'</span>].nunique()</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>crashes <span class="op">=</span> <span class="bu">len</span>(df)</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>countries <span class="op">=</span> df[<span class="st">'Country/Region'</span>].nunique()</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>title<span class="op">=</span><span class="st">'all total'</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> make_subplots(rows<span class="op">=</span><span class="dv">1</span>, cols<span class="op">=</span><span class="dv">3</span>, specs<span class="op">=</span>[[{<span class="st">'type'</span>:<span class="st">'indicator'</span>}]<span class="op">*</span><span class="dv">3</span>])</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>fig.add_trace(go.Indicator(</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    mode<span class="op">=</span><span class="st">"number"</span>,</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span>aircrafts,</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>{<span class="st">"text"</span>: <span class="st">"Unique Aircrafts"</span>}), row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>fig.add_trace(go.Indicator(</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    mode<span class="op">=</span><span class="st">"number"</span>,</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span>crashes,</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>{<span class="st">"text"</span>: <span class="st">"Total Crashes"</span>}), row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>fig.add_trace(go.Indicator(</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>    mode<span class="op">=</span><span class="st">"number"</span>,</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>    value<span class="op">=</span>countries,</span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span>{<span class="st">"text"</span>: <span class="st">"Countries Involved"</span>}), row<span class="op">=</span><span class="dv">1</span>, col<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>fig.update_layout(height<span class="op">=</span><span class="dv">300</span>, width<span class="op">=</span><span class="dv">900</span>, template<span class="op">=</span><span class="st">'presentation'</span>)</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'all total.jpg'</span>))</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'all total.png'</span>))</span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir,<span class="st">'all total.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Unable to display output for mime type(s): application/vnd.plotly.v1+json</code></pre>
+</div>
+</div>
+<p>This set of indicator charts provides a quick summary of key dataset metrics:</p>
+<p>Unique Aircrafts: The dataset includes over 3,500 different aircraft models, highlighting the wide variety of aircraft types involved in air crashes over time.</p>
+<p>Total Crashes: There are 5,030 crash records in the dataset, representing reported aviation accidents from the early 1900s up to recent years.</p>
+<p>Countries Involved: The dataset includes crashes across more than 100 countries, indicating that aviation incidents have occurred globally, though many entries are listed as “unknown.”</p>
+<p>This dashboard gives an immediate overview of the scale and diversity of the aircrash data, helping to contextualize later analyses focused on specific aircraft, locations, or time periods.</p>
+<div id="d19567d2-f686-4a7b-8274-47332d6da638" class="cell" data-execution_count="120">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the directory where results will be saved</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>result_dir <span class="op">=</span> <span class="vs">r"C:</span><span class="er">\</span><span class="vs">Users</span><span class="er">\</span><span class="vs">user</span><span class="dv">\D</span><span class="vs">ocuments</span><span class="er">\</span><span class="vs">Tekher</span><span class="er">\</span><span class="vs">NEW CRASHES</span><span class="dv">\A</span><span class="vs">ircrashes_report</span><span class="ch">\r</span><span class="vs">esult"</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure the folder exists, if not create it</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>os.makedirs(result_dir, exist_ok<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="crashes-over-time" class="level3">
+<h3 class="anchored" data-anchor-id="crashes-over-time">Crashes over time</h3>
+<div id="0bfc9800-ec69-405d-a9fd-0c9a01d2e56d" class="cell" data-execution_count="121">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Make sure this is set correctly</span></span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>result_dir <span class="op">=</span> <span class="vs">r'C:</span><span class="er">\</span><span class="vs">Users</span><span class="er">\</span><span class="vs">user</span><span class="dv">\D</span><span class="vs">ocuments</span><span class="er">\</span><span class="vs">CrashResults'</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>os.makedirs(result_dir, exist_ok<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Reclassify Operator Type</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> classify_operator(op):</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> pd.isna(op) <span class="kw">or</span> op.strip().lower() <span class="kw">in</span> [<span class="st">'unknown'</span>, <span class="st">''</span>, <span class="st">'nan'</span>]:</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'Unknown'</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> <span class="st">'military'</span> <span class="kw">in</span> op.lower() <span class="kw">or</span> <span class="st">'army'</span> <span class="kw">in</span> op.lower() <span class="kw">or</span> <span class="st">'navy'</span> <span class="kw">in</span> op.lower():</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'Military'</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">'Commercial'</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-18"><a href="#cb38-18" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Operator Type'</span>] <span class="op">=</span> df[<span class="st">'Operator'</span>].<span class="bu">apply</span>(classify_operator)</span>
+<span id="cb38-19"><a href="#cb38-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-20"><a href="#cb38-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Group the data</span></span>
+<span id="cb38-21"><a href="#cb38-21" aria-hidden="true" tabindex="-1"></a>crashes_by_operator <span class="op">=</span> df.groupby([<span class="st">'Year'</span>, <span class="st">'Operator Type'</span>]).size().reset_index(name<span class="op">=</span><span class="st">'Total Crashes'</span>)</span>
+<span id="cb38-22"><a href="#cb38-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-23"><a href="#cb38-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Use a line chart</span></span>
+<span id="cb38-24"><a href="#cb38-24" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.line(</span>
+<span id="cb38-25"><a href="#cb38-25" aria-hidden="true" tabindex="-1"></a>    crashes_by_operator,</span>
+<span id="cb38-26"><a href="#cb38-26" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'Year'</span>,</span>
+<span id="cb38-27"><a href="#cb38-27" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Total Crashes'</span>,</span>
+<span id="cb38-28"><a href="#cb38-28" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">'Operator Type'</span>,</span>
+<span id="cb38-29"><a href="#cb38-29" aria-hidden="true" tabindex="-1"></a>    markers<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb38-30"><a href="#cb38-30" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'Trends in Air Crashes Over Time by Operator Type'</span>,</span>
+<span id="cb38-31"><a href="#cb38-31" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">'plotly_white'</span>,</span>
+<span id="cb38-32"><a href="#cb38-32" aria-hidden="true" tabindex="-1"></a>    color_discrete_map<span class="op">=</span>{</span>
+<span id="cb38-33"><a href="#cb38-33" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Military'</span>: <span class="st">'#1f77b4'</span>,</span>
+<span id="cb38-34"><a href="#cb38-34" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Commercial'</span>: <span class="st">'#2ca02c'</span>,</span>
+<span id="cb38-35"><a href="#cb38-35" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Unknown'</span>: <span class="st">'#ff7f0e'</span></span>
+<span id="cb38-36"><a href="#cb38-36" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb38-37"><a href="#cb38-37" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">650</span>,</span>
+<span id="cb38-38"><a href="#cb38-38" aria-hidden="true" tabindex="-1"></a>    width<span class="op">=</span><span class="dv">1100</span></span>
+<span id="cb38-39"><a href="#cb38-39" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-40"><a href="#cb38-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-41"><a href="#cb38-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Update layout for clarity</span></span>
+<span id="cb38-42"><a href="#cb38-42" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb38-43"><a href="#cb38-43" aria-hidden="true" tabindex="-1"></a>    xaxis<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb38-44"><a href="#cb38-44" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">'Year'</span>,</span>
+<span id="cb38-45"><a href="#cb38-45" aria-hidden="true" tabindex="-1"></a>        tickmode<span class="op">=</span><span class="st">'linear'</span>,</span>
+<span id="cb38-46"><a href="#cb38-46" aria-hidden="true" tabindex="-1"></a>        dtick<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb38-47"><a href="#cb38-47" aria-hidden="true" tabindex="-1"></a>        tickangle<span class="op">=</span><span class="dv">45</span>,</span>
+<span id="cb38-48"><a href="#cb38-48" aria-hidden="true" tabindex="-1"></a>        title_font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb38-49"><a href="#cb38-49" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb38-50"><a href="#cb38-50" aria-hidden="true" tabindex="-1"></a>    yaxis<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb38-51"><a href="#cb38-51" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">'Total Crashes'</span>,</span>
+<span id="cb38-52"><a href="#cb38-52" aria-hidden="true" tabindex="-1"></a>        title_font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">16</span>)</span>
+<span id="cb38-53"><a href="#cb38-53" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb38-54"><a href="#cb38-54" aria-hidden="true" tabindex="-1"></a>    title_font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">22</span>),</span>
+<span id="cb38-55"><a href="#cb38-55" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="bu">dict</span>(</span>
+<span id="cb38-56"><a href="#cb38-56" aria-hidden="true" tabindex="-1"></a>        title<span class="op">=</span><span class="st">'Operator Type'</span>,</span>
+<span id="cb38-57"><a href="#cb38-57" aria-hidden="true" tabindex="-1"></a>        font<span class="op">=</span><span class="bu">dict</span>(size<span class="op">=</span><span class="dv">14</span>),</span>
+<span id="cb38-58"><a href="#cb38-58" aria-hidden="true" tabindex="-1"></a>        orientation<span class="op">=</span><span class="st">'h'</span>,</span>
+<span id="cb38-59"><a href="#cb38-59" aria-hidden="true" tabindex="-1"></a>        yanchor<span class="op">=</span><span class="st">'bottom'</span>,</span>
+<span id="cb38-60"><a href="#cb38-60" aria-hidden="true" tabindex="-1"></a>        y<span class="op">=-</span><span class="fl">0.3</span>,</span>
+<span id="cb38-61"><a href="#cb38-61" aria-hidden="true" tabindex="-1"></a>        xanchor<span class="op">=</span><span class="st">'center'</span>,</span>
+<span id="cb38-62"><a href="#cb38-62" aria-hidden="true" tabindex="-1"></a>        x<span class="op">=</span><span class="fl">0.5</span></span>
+<span id="cb38-63"><a href="#cb38-63" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb38-64"><a href="#cb38-64" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-65"><a href="#cb38-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-66"><a href="#cb38-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Show plot</span></span>
+<span id="cb38-67"><a href="#cb38-67" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb38-68"><a href="#cb38-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-69"><a href="#cb38-69" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Trends in Air Crashes Over Time by Operator Type.jpg'</span>))</span>
+<span id="cb38-70"><a href="#cb38-70" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Trends in Air Crashes Over Time by Operator Type.png'</span>))</span>
+<span id="cb38-71"><a href="#cb38-71" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir,<span class="st">'Trends in Air Crashes Over Time by Operator Type.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Unable to display output for mime type(s): application/vnd.plotly.v1+json</code></pre>
+</div>
+</div>
+<p>This line chart illustrates the trend of air crashes over time, categorized by operator type: Military, Commercial, and Unknown.</p>
+<p>Military crashes were more frequent in earlier decades, especially around major global conflicts, and gradually declined over time.</p>
+<p>Commercial crashes show a different trend, increasing during the aviation boom and later stabilizing as safety measures improved.</p>
+<p>The Unknown category captures operators with missing or unclear information and remains relatively constant.</p>
+<p>The use of a time-series view reveals how aviation safety and reporting practices have evolved, and highlights the distinct patterns between military and civilian aviation sectors.</p>
+<div id="1f8010d7-6f56-4195-a64b-3fe5a95e7412" class="cell" data-execution_count="122">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'Operator'</span>].unique()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="122">
+<pre><code>array(['Army U.S. - Military', 'Unknown', 'Navy U.S. - JerseyMilitary',
+       ..., 'LATAM', 'SAS Aero', 'Aerotaxi Manaus'], dtype=object)</code></pre>
+</div>
+</div>
+</section>
+<section id="top-aircraft-types-involved" class="level3">
+<h3 class="anchored" data-anchor-id="top-aircraft-types-involved">Top aircraft types involved</h3>
+<div id="b08207be-2a7a-4d14-8698-4ea3eb8b914c" class="cell" data-execution_count="123">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter top 10 aircraft by number of crashes</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>top_aircrafts <span class="op">=</span> df[<span class="st">'Aircraft'</span>].value_counts().nlargest(<span class="dv">10</span>).index</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>top_aircrafts_df <span class="op">=</span> df[df[<span class="st">'Aircraft'</span>].isin(top_aircrafts)]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Aggregate total crashes and total fatalities per aircraft</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>agg_data <span class="op">=</span> top_aircrafts_df.groupby(<span class="st">'Aircraft'</span>).agg(</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    crash_count<span class="op">=</span>(<span class="st">'Aircraft'</span>, <span class="st">'size'</span>),</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    total_fatalities<span class="op">=</span>(<span class="st">'Sum of Fatalities (air)'</span>, <span class="st">'sum'</span>)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.bar(</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    agg_data.sort_values(<span class="st">'crash_count'</span>),</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'crash_count'</span>,</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Aircraft'</span>,</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">'h'</span>,</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'Top 10 Aircraft Types Involved in Crashes with Fatalities'</span>,</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">'presentation'</span>,</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">600</span>,</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>{</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="va">True</span>,</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="va">True</span></span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="st">'Number of Crashes'</span>,</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="st">'Total Fatalities'</span></span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">'Aircraft Type'</span>,</span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>    xaxis_title<span class="op">=</span><span class="st">'Number of Crashes'</span>,</span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">'Aircraft Type'</span>,</span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>    xaxis_title<span class="op">=</span><span class="st">'Number of Crashes'</span>,</span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">280</span>) </span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types Involved in Crashes with Fatalities.jpg'</span>))</span>
+<span id="cb42-42"><a href="#cb42-42" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types Involved in Crashes with Fatalities.png'</span>))</span>
+<span id="cb42-43"><a href="#cb42-43" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types Involved in Crashes with Fatalities.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Unable to display output for mime type(s): application/vnd.plotly.v1+json</code></pre>
+</div>
+</div>
+<p>The bar chart displays the top 10 aircraft types involved in air crashes, sorted by the number of crash incidents, and includes associated total fatalities for each type.</p>
+<p>The Boeing B 737 stands out with the highest crash count, reflecting its widespread use globally. While not necessarily the deadliest, its high presence in aviation fleets contributes to its crash count.</p>
+<p>Other models like the Douglas C 47A and McDonnell Douglas DC 9 also show up prominently, suggesting historical or operational factors that increased their incident exposure.</p>
+<p>Some aircraft, despite a relatively lower crash count, report higher fatality totals, pointing to either larger passenger capacities or more severe accidents.</p>
+<p>This visualization provides critical insight into which aircraft types have historically experienced more accidents, and can prompt deeper investigation into causes such as manufacturing era, flight hours, or operational environment.</p>
+</section>
+<section id="aircraft-manufacturers-breakdown" class="level3">
+<h3 class="anchored" data-anchor-id="aircraft-manufacturers-breakdown">Aircraft manufacturers breakdown</h3>
+<div id="83e14b51-3d1b-4b18-9139-a5be229bfeaa" class="cell" data-execution_count="124">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>top_makers <span class="op">=</span> df[<span class="st">'Aircraft Manufacturer'</span>].value_counts().nlargest(<span class="dv">10</span>).index</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>top_makers_df <span class="op">=</span> df[df[<span class="st">'Aircraft Manufacturer'</span>].isin(top_makers)]</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>agg_manufacturer <span class="op">=</span> top_makers_df.groupby(<span class="st">'Aircraft Manufacturer'</span>).agg(</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    crash_count<span class="op">=</span>(<span class="st">'Aircraft Manufacturer'</span>, <span class="st">'size'</span>),</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    total_fatalities<span class="op">=</span>(<span class="st">'Sum of Fatalities (air)'</span>, <span class="st">'sum'</span>)</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.bar(</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>    agg_manufacturer.sort_values(<span class="st">'crash_count'</span>),</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'crash_count'</span>,</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Aircraft Manufacturer'</span>,</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">'h'</span>,</span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'Top 10 Aircraft Manufacturers by Number of Crashes'</span>,</span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">'presentation'</span>,</span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">600</span>,</span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>{</span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="va">True</span>,</span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="va">True</span></span>
+<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{</span>
+<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="st">'Number of Crashes'</span>,</span>
+<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="st">'Total Fatalities'</span>,</span>
+<span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Aircraft Manufacturer'</span>: <span class="st">'Manufacturer'</span></span>
+<span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-31"><a href="#cb44-31" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb44-32"><a href="#cb44-32" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">'Manufacturer'</span>,</span>
+<span id="cb44-33"><a href="#cb44-33" aria-hidden="true" tabindex="-1"></a>    xaxis_title<span class="op">=</span><span class="st">'Number of Crashes'</span>,</span>
+<span id="cb44-34"><a href="#cb44-34" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">220</span>) </span>
+<span id="cb44-35"><a href="#cb44-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-36"><a href="#cb44-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-37"><a href="#cb44-37" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb44-38"><a href="#cb44-38" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Manufacturers by Number of Crashes.jpg'</span>))</span>
+<span id="cb44-39"><a href="#cb44-39" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Manufacturers by Number of Crashes.png'</span>))</span>
+<span id="cb44-40"><a href="#cb44-40" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Manufacturers by Number of Crashes.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Unable to display output for mime type(s): application/vnd.plotly.v1+json</code></pre>
+</div>
+</div>
+<p>The horizontal bar chart highlights the top 10 aircraft manufacturers based on the number of recorded crashes, along with their associated fatalities.</p>
+<p>Douglas appears as the leading manufacturer in crash frequency, likely due to its long operational history and extensive fleet usage over the decades.</p>
+<p>Boeing, while known for its global commercial dominance, also registers a high number of incidents a reflection of its large-scale deployment rather than design flaws.</p>
+<p>Manufacturers like Lockheed and De Havilland also feature prominently, indicating significant usage, especially in earlier aviation eras.</p>
+<p>Some manufacturers with fewer aircraft types involved still record notably high fatalities, suggesting larger aircraft or more severe accidents tied to those specific models.</p>
+<p>The inclusion of historical manufacturers like Antonov and McDonnell Douglas also emphasizes how legacy fleets contribute to cumulative crash statistics.</p>
+</section>
+<section id="fatalities-vs-aircraft-types-top-10-by-fatalities" class="level3">
+<h3 class="anchored" data-anchor-id="fatalities-vs-aircraft-types-top-10-by-fatalities">Fatalities vs Aircraft Types (Top 10 by Fatalities)</h3>
+<div id="2d257242-6644-49a0-b9a8-44754bfc9ea4" class="cell" data-execution_count="125">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>fatalities_by_aircraft <span class="op">=</span> df.groupby(<span class="st">'Aircraft'</span>).agg(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    total_fatalities<span class="op">=</span>(<span class="st">'Sum of Fatalities (air)'</span>, <span class="st">'sum'</span>),</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    crash_count<span class="op">=</span>(<span class="st">'Aircraft'</span>, <span class="st">'size'</span>)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>top_fatal_aircraft <span class="op">=</span> fatalities_by_aircraft.nlargest(<span class="dv">10</span>, <span class="st">'total_fatalities'</span>)</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.bar(</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>    top_fatal_aircraft.sort_values(<span class="st">'total_fatalities'</span>),</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'total_fatalities'</span>,</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Aircraft'</span>,</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>    orientation<span class="op">=</span><span class="st">'h'</span>,</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'Top 10 Aircraft Types by Total Fatalities'</span>,</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">'presentation'</span>,</span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">600</span>,</span>
+<span id="cb46-18"><a href="#cb46-18" aria-hidden="true" tabindex="-1"></a>    hover_data<span class="op">=</span>{</span>
+<span id="cb46-19"><a href="#cb46-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="va">True</span>,</span>
+<span id="cb46-20"><a href="#cb46-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="va">True</span></span>
+<span id="cb46-21"><a href="#cb46-21" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb46-22"><a href="#cb46-22" aria-hidden="true" tabindex="-1"></a>    labels<span class="op">=</span>{</span>
+<span id="cb46-23"><a href="#cb46-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">'total_fatalities'</span>: <span class="st">'Total Fatalities'</span>,</span>
+<span id="cb46-24"><a href="#cb46-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">'crash_count'</span>: <span class="st">'Number of Crashes'</span>,</span>
+<span id="cb46-25"><a href="#cb46-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">'Aircraft'</span>: <span class="st">'Aircraft Type'</span></span>
+<span id="cb46-26"><a href="#cb46-26" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb46-27"><a href="#cb46-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-28"><a href="#cb46-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-29"><a href="#cb46-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-30"><a href="#cb46-30" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb46-31"><a href="#cb46-31" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">'Aircraft Type'</span>,</span>
+<span id="cb46-32"><a href="#cb46-32" aria-hidden="true" tabindex="-1"></a>    xaxis_title<span class="op">=</span><span class="st">'Total Fatalities'</span>,</span>
+<span id="cb46-33"><a href="#cb46-33" aria-hidden="true" tabindex="-1"></a>    margin<span class="op">=</span><span class="bu">dict</span>(l<span class="op">=</span><span class="dv">280</span>)</span>
+<span id="cb46-34"><a href="#cb46-34" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb46-35"><a href="#cb46-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-36"><a href="#cb46-36" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb46-37"><a href="#cb46-37" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types by Total Fatalities.jpg'</span>))</span>
+<span id="cb46-38"><a href="#cb46-38" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types by Total Fatalities.png'</span>))</span>
+<span id="cb46-39"><a href="#cb46-39" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir,<span class="st">'Top 10 Aircraft Types by Total Fatalities.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<pre><code>Unable to display output for mime type(s): application/vnd.plotly.v1+json</code></pre>
+</div>
+</div>
+<p>This bar chart displays the aircraft types associated with the highest total fatalities across recorded crash events.</p>
+<p>Aircraft like the Douglas DC-3 and Boeing 727 dominate the list, reflecting both their widespread historical use and involvement in high-fatality incidents.</p>
+<p>These aircraft models often served on busy commercial or military routes, which may explain the elevated death tolls when crashes occurred.</p>
+<p>While some of these types may not lead in total crash counts, their average fatality per crash is significant pointing to the severity or scale of the accidents in which they were involved.</p>
+<p>The presence of legacy aircraft highlights the evolution of aviation safety, as older designs may have lacked the advanced technologies and structural reinforcements of modern jets.</p>
+<p>This visualization underscores the importance of not only examining crash frequency, but also considering fatality impact, especially for aircraft involved in historically catastrophic accidents.</p>
+<p>By focusing on fatality totals, this analysis brings attention to which aircraft types had the most devastating outcomes, offering insights for historical safety reviews and future aviation risk assessments.</p>
+<div id="aed702eb-0e1f-4f88-b986-f9b306c953d9" class="cell" data-execution_count="126">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> calendar</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> plotly.express <span class="im">as</span> px</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Count crashes per month number</span></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>crashes_by_month <span class="op">=</span> df[<span class="st">'Month_num'</span>].value_counts().reset_index()</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>crashes_by_month.columns <span class="op">=</span> [<span class="st">'Month_num'</span>, <span class="st">'Crash Count'</span>]</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Add month name column</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>crashes_by_month[<span class="st">'Month'</span>] <span class="op">=</span> crashes_by_month[<span class="st">'Month_num'</span>].<span class="bu">apply</span>(</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">lambda</span> x: calendar.month_name[<span class="bu">int</span>(x)] <span class="cf">if</span> x <span class="op">!=</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">'Unknown'</span></span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by Crash Count descending</span></span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>crashes_by_month <span class="op">=</span> crashes_by_month.sort_values(<span class="st">'Crash Count'</span>, ascending<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Create bar chart with months ordered by descending crash count</span></span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> px.bar(</span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>    crashes_by_month,</span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'Month'</span>,</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'Crash Count'</span>,</span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a>    title<span class="op">=</span><span class="st">'Air Crashes Distribution by Month '</span>,</span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>    template<span class="op">=</span><span class="st">'presentation'</span>,</span>
+<span id="cb48-24"><a href="#cb48-24" aria-hidden="true" tabindex="-1"></a>    height<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb48-25"><a href="#cb48-25" aria-hidden="true" tabindex="-1"></a>    category_orders<span class="op">=</span>{<span class="st">'Month'</span>: crashes_by_month[<span class="st">'Month'</span>].tolist()}  <span class="co"># order by crash count descending</span></span>
+<span id="cb48-26"><a href="#cb48-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-27"><a href="#cb48-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-28"><a href="#cb48-28" aria-hidden="true" tabindex="-1"></a>fig.update_layout(</span>
+<span id="cb48-29"><a href="#cb48-29" aria-hidden="true" tabindex="-1"></a>    xaxis_title<span class="op">=</span><span class="st">'Month'</span>,</span>
+<span id="cb48-30"><a href="#cb48-30" aria-hidden="true" tabindex="-1"></a>    yaxis_title<span class="op">=</span><span class="st">'Number of Crashes'</span></span>
+<span id="cb48-31"><a href="#cb48-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-32"><a href="#cb48-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-33"><a href="#cb48-33" aria-hidden="true" tabindex="-1"></a>fig.show()</span>
+<span id="cb48-34"><a href="#cb48-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-35"><a href="#cb48-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Save files</span></span>
+<span id="cb48-36"><a href="#cb48-36" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir, <span class="st">'Air Crashes Distribution by Month Descending.jpg'</span>))</span>
+<span id="cb48-37"><a href="#cb48-37" aria-hidden="true" tabindex="-1"></a>fig.write_image(os.path.join(result_dir, <span class="st">'Air Crashes Distribution by Month Descending.png'</span>))</span>
+<span id="cb48-38"><a href="#cb48-38" aria-hidden="true" tabindex="-1"></a>fig.write_html(os.path.join(result_dir, <span class="st">'Air Crashes Distribution by Month Descending.html'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Data_Analysis%20(1)_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This bar chart visualizes the distribution of air crashes across the months of the year, ordered by the number of crashes from highest to lowest. Instead of following the calendar sequence, the months are arranged so that the month with the most air crashes appears first on the left, descending to the month with the fewest crashes on the right.</p>
+<p>From this visualization, we can quickly identify which months experienced the highest frequency of air crashes. This order helps highlight peak periods of air crash incidents, making it easier to analyze any seasonal trends or external factors influencing crash occurrences.</p>
+<p>Understanding these peaks is crucial for improving aviation safety measures, allocating resources for risk management, and planning preventative actions during high-risk periods.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
